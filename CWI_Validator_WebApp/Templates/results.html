@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Validation Results - CWI Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px 0;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-section h1 {
+            color: white;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-section p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .results-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border: none;
+        }
+
+        .card-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .card-header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .summary-section {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .summary-title {
+            text-align: center;
+            color: #1e3c72;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card.total {
+            border-left-color: #6c757d;
+        }
+
+        .stat-card.valid {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.invalid {
+            border-left-color: #dc3545;
+        }
+
+        .stat-card.accuracy {
+            border-left-color: #007bff;
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-card.total .icon {
+            color: #6c757d;
+        }
+
+        .stat-card.valid .icon {
+            color: #28a745;
+        }
+
+        .stat-card.invalid .icon {
+            color: #dc3545;
+        }
+
+        .stat-card.accuracy .icon {
+            color: #007bff;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-card .label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.8rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .action-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .action-btn.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .action-btn.warning:hover {
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .action-btn.secondary:hover {
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .results-section {
+            padding: 1.5rem;
+        }
+
+        .results-title {
+            color: #1e3c72;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-height: 55vh;
+            position: relative;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 55vh;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .table-scroll-indicator {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            z-index: 20;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .table {
+            margin: 0;
+            font-size: 0.8rem;
+            width: 100%;
+            table-layout: auto;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 0.7rem 0.6rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .table tbody td {
+            padding: 0.6rem 0.6rem;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .table tbody td:last-child {
+            max-width: 150px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        .btn-analysis {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .btn-analysis:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .chart-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .chart-btn:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .chart-btn.active {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        #chart-container {
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #analysisGraph {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .loading-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+
+        .btn-close {
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-btn {
+                justify-content: center;
+                padding: 0.7rem 1.5rem;
+            }
+            
+            .chart-btn-group {
+                flex-direction: column;
+            }
+            
+            .table-wrapper {
+                max-height: 45vh;
+            }
+            
+            .table {
+                font-size: 0.75rem;
+            }
+            
+            .table thead th,
+            .table tbody td {
+                padding: 0.5rem 0.4rem;
+            }
+
+            .table tbody td {
+                max-width: 120px;
+            }
+        }
+
+        /* Animation for stats cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Pulse animation for invalid count */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1><i class="fas fa-chart-line"></i> Validation Results</h1>
+            <p>Comprehensive analysis of your Excel file</p>
+        </div>
+
+        <div class="results-card">
+            <div class="card-header">
+                <h2>Validation Report</h2>
+                <div class="subtitle">Complete analysis with detailed insights</div>
+            </div>
+            
+            <div class="summary-section">
+                <div class="summary-title">
+                    <i class="fas fa-chart-pie"></i> Summary Overview
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <div class="icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="number">{{ total }}</div>
+                        <div class="label">Total Rows</div>
+                    </div>
+                    
+                    <div class="stat-card valid">
+                        <div class="icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="number">{{ valid }}</div>
+                        <div class="label">Valid Rows</div>
+                    </div>
+                    
+                    <div class="stat-card invalid">
+                        <div class="icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="number">{{ invalid }}</div>
+                        <div class="label">Invalid Rows</div>
+                    </div>
+                    
+                    <div class="stat-card accuracy">
+                        <div class="icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="number">{{ accuracy }}</div>
+                        <div class="label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('download_file', filename=full_report_filename) }}" class="action-btn">
+                    <i class="fas fa-download"></i> Download Full Report
+                </a>
+                
+                {% if invalid > 0 %}
+                <a href="{{ url_for('download_file', filename=invalid_report_filename) }}" class="action-btn warning">
+                    <i class="fas fa-exclamation-triangle"></i> Download Invalid Rows
+                </a>
+                {% endif %}
+                
+                <a href="/" class="action-btn secondary">
+                    <i class="fas fa-upload"></i> Validate Another File
+                </a>
+            </div>
+
+            <div class="results-section">
+                <div class="results-title">
+                    <i class="fas fa-table"></i> Detailed Results
+                </div>
+                <div class="table-container">
+                    <div class="table-wrapper" id="table-wrapper">
+                        {{ table_html|safe }}
+                    </div>
+                    <div class="table-scroll-indicator" id="scroll-indicator" style="display: none;">
+                        <i class="fas fa-arrows-alt-h"></i> Scroll horizontally to view all columns
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analysisModalLabel">
+                        <i class="fas fa-chart-area"></i> Validation Analysis
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="chart-btn-group">
+                        <button type="button" class="btn chart-btn" data-chart-type="bell_curve">
+                            <i class="fas fa-bell"></i> Bell Curve
+                        </button>
+                        <button type="button" class="btn chart-btn" data-chart-type="bar_plot">
+                            <i class="fas fa-chart-bar"></i> Bar Plot
+                        </button>
+                        <button type="button" class="btn chart-btn" data-chart-type="box_plot">
+                            <i class="fas fa-box"></i> Box Plot
+                        </button>
+                        <button type="button" class="btn chart-btn" data-chart-type="threshold_line">
+                            <i class="fas fa-chart-line"></i> Threshold Line
+                        </button>
+                    </div>
+                    <hr>
+                    <div id="chart-container">
+                        <div id="analysisText" class="lead">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            Please select a chart type to view the analysis
+                        </div>
+                        <img id="analysisGraph" src="" alt="Analysis Graph" style="display: none;" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
+            const analysisText = document.getElementById('analysisText');
+            const analysisGraph = document.getElementById('analysisGraph');
+            const analysisModalLabel = document.getElementById('analysisModalLabel');
+            const chartContainer = document.getElementById('chart-container');
+            let currentRowData = {};
+            let activeChartBtn = null;
+
+            // When "View Analysis" is clicked, get data from the button and open the modal
+            document.querySelectorAll('.btn-analysis').forEach(button => {
+                button.addEventListener('click', function () {
+                    currentRowData = {
+                        particular: this.dataset.particular,
+                        quantity: this.dataset.quantity,
+                        range: this.dataset.range
+                    };
+
+                    analysisModalLabel.innerHTML = `<i class="fas fa-chart-area"></i> Analysis for: ${currentRowData.particular}`;
+                    analysisText.innerHTML = '<i class="fas fa-info-circle text-primary"></i> Please select a chart type to view the analysis';
+                    analysisGraph.style.display = 'none';
+                    
+                    // Reset active button
+                    document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+                    activeChartBtn = null;
+                    
+                    analysisModal.show();
+                });
+            });
+
+            // When a chart type button inside the modal is clicked, fetch the graph
+            document.querySelectorAll('.chart-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const chartType = this.getAttribute('data-chart-type');
+                    
+                    // Update active button
+                    document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    activeChartBtn = this;
+                    
+                    // Show loading state
+                    chartContainer.innerHTML = `
+                        <div class="loading-chart">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div class="text-muted">Generating ${chartType.replace('_', ' ')}...</div>
+                        </div>
+                    `;
+
+                    const { particular, quantity, range } = currentRowData;
+                    const url = `/graph?type=${chartType}&range=${encodeURIComponent(range)}&particular=${encodeURIComponent(particular)}&value=${quantity}`;
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                chartContainer.innerHTML = `
+                                    <div class="text-danger">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        ${data.error}
+                                    </div>
+                                `;
+                            } else {
+                                chartContainer.innerHTML = `
+                                    <div class="mb-3">${data.explanation}</div>
+                                    <img id="analysisGraph" src="data:image/png;base64,${data.image}" alt="Analysis Graph" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" />
+                                `;
+                            }
+                        })
+                        .catch(error => {
+                            chartContainer.innerHTML = `
+                                <div class="text-danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Failed to load analysis chart. Please try again.
+                                </div>
+                            `;
+                            console.error('Error:', error);
+                        });
+                });
+            });
+
+            // Add smooth scrolling to table
+            const tableWrapper = document.querySelector('.table-wrapper');
+            const scrollIndicator = document.getElementById('scroll-indicator');
+            
+            if (tableWrapper) {
+                tableWrapper.style.scrollBehavior = 'smooth';
+                
+                // Check if table needs horizontal scrolling
+                const table = tableWrapper.querySelector('table');
+                if (table && table.scrollWidth > tableWrapper.clientWidth) {
+                    // Show scroll indicator for 3 seconds
+                    scrollIndicator.style.display = 'block';
+                    setTimeout(() => {
+                        scrollIndicator.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Add loading animation to action buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (this.href && this.href.includes('download')) {
+                        const originalContent = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalContent;
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Animate stats cards on load
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Add pulse animation to invalid count if there are errors
+            const invalidCard = document.querySelector('.stat-card.invalid');
+            if (invalidCard && parseInt(invalidCard.querySelector('.number').textContent) > 0) {
+                invalidCard.style.animation = 'pulse 2s infinite';
+            }
+        });
+    </script>
+</body>
+</html>
