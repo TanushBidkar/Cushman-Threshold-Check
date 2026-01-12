@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CWI Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-section h1 {
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-section p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        .validator-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .validator-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border: none;
+        }
+
+        .card-header h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .card-body {
+            padding: 3rem;
+        }
+
+        .client-selection-section {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #4a6cf7;
+        }
+
+        .client-selection-section h5 {
+            color: #1e3c72;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .client-selection-section h5 i {
+            margin-right: 0.5rem;
+        }
+
+        .client-selection-section .subtitle-text {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .client-checkbox {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .client-checkbox:hover {
+            border-color: #4a6cf7;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.15);
+        }
+
+        .client-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            cursor: pointer;
+            accent-color: #4a6cf7;
+        }
+
+        .client-checkbox label {
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .client-checkbox.selected {
+            border-color: #4a6cf7;
+            background: linear-gradient(135deg, #e8f0ff 0%, #f0f4ff 100%);
+        }
+
+        .client-checkbox.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .client-checkbox.disabled:hover {
+            transform: none;
+            border-color: #e0e0e0;
+            box-shadow: none;
+        }
+
+        .selected-clients-display {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+            display: none;
+        }
+
+        .selected-clients-display.show {
+            display: block;
+        }
+
+        .selected-clients-display h6 {
+            color: #155724;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .selected-clients-display h6 i {
+            margin-right: 0.5rem;
+        }
+
+        .selected-clients-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .client-tag {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .info-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #007bff;
+        }
+
+        .info-section h5 {
+            color: #1e3c72;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .info-section .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: #495057;
+        }
+
+        .info-section .info-item i {
+            color: #007bff;
+            margin-right: 0.75rem;
+            width: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #cccccc;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .upload-area.enabled {
+            border-color: #007bff;
+            cursor: pointer;
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .upload-area.enabled:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+            border-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area.enabled .upload-icon {
+            color: #007bff;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .upload-area.enabled .upload-text {
+            color: #495057;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .upload-area.enabled .upload-subtext {
+            color: #6c757d;
+        }
+
+
+
+        .upload-disabled-message {
+            color: #dc3545;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .selected-file {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .selected-file .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #155724;
+            font-weight: 500;
+        }
+
+        .selected-file .file-info i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .validate-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .validate-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(40, 167, 69, 0.4);
+        }
+
+        .validate-btn:active {
+            transform: translateY(0);
+        }
+
+        .validate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .feature-card i {
+            font-size: 2rem;
+            color: #007bff;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h6 {
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #ff9800;
+        }
+
+        .modal-header i {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+        }
+
+        .modal-header h4 {
+            margin: 0;
+            color: #1e3c72;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            text-align: right;
+        }
+
+        .modal-close-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2.5rem;
+            }
+            
+            .card-body {
+                padding: 2rem;
+            }
+            
+            .clients-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-area {
+                padding: 2rem;
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+            }
+        }
+
+        /* Dual Upload Area Styles - MOVED OUTSIDE MEDIA QUERY */
+        .dual-upload-area {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dual-upload-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .upload-box-dual {
+            border: 3px dashed #cccccc;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-box-dual:hover {
+            border-color: #007bff;
+            background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 123, 255, 0.2);
+        }
+
+        .upload-box-dual.dragover {
+            border-color: #0056b3;
+            background: linear-gradient(135deg, #bbdefb 0%, #e3f2fd 100%);
+            transform: scale(1.03);
+        }
+
+        .hdfc-box {
+            border-color: #007bff;
+        }
+
+        .hdfc-box:hover {
+            border-color: #0056b3;
+            box-shadow: 0 15px 35px rgba(0, 123, 255, 0.3);
+        }
+
+        .icici-box {
+            border-color: #28a745;
+        }
+
+        .icici-box:hover {
+            border-color: #1e7e34;
+            box-shadow: 0 15px 35px rgba(40, 167, 69, 0.3);
+        }
+
+        .upload-icon-dual {
+            font-size: 5rem;
+            color: #007bff;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .hdfc-box .upload-icon-dual {
+            color: #007bff;
+        }
+
+        .icici-box .upload-icon-dual {
+            color: #28a745;
+        }
+
+        .upload-box-dual:hover .upload-icon-dual {
+            transform: scale(1.1);
+            animation: bounce 1s infinite;
+        }
+
+        .upload-text-dual {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext-dual {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .vs-divider-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .vs-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .selected-file-name {
+            margin-top: 1.5rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 25px;
+            color: #155724;
+            font-weight: 600;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .selected-file-name i {
+            margin-right: 0.5rem;
+            color: #28a745;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* File uploaded state */
+        .upload-box-dual.file-uploaded {
+            border-color: #28a745;
+            border-style: solid;
+            background: linear-gradient(135deg, #d4edda 0%, #f0f9f4 100%);
+        }
+
+        /* Responsive Design for Dual Upload */
+        @media (max-width: 992px) {
+            .dual-upload-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .vs-divider-upload {
+                height: auto;
+                padding: 1rem 0;
+            }
+            
+            .vs-circle {
+                transform: rotate(90deg);
+            }
+            
+            .upload-box-dual {
+                min-height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dual-upload-area {
+                padding: 2rem 1rem;
+            }
+            
+            .upload-box-dual {
+                padding: 2rem 1rem;
+                min-height: 220px;
+            }
+            
+            .upload-icon-dual {
+                font-size: 3.5rem;
+            }
+            
+            .upload-text-dual {
+                font-size: 1.1rem;
+            }
+        }
+        /* Location Selection Section */
+.location-selection-section {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid #4caf50;
+    display: none; /* Hidden by default */
+}
+
+.location-selection-section.show {
+    display: block;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.location-selection-section h5 {
+    color: #1e3c72;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.location-selection-section h5 i {
+    margin-right: 0.5rem;
+    color: #4caf50;
+}
+
+.location-notice {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.location-notice i {
+    font-size: 1.5rem;
+    color: #ff9800;
+}
+
+.location-notice-text {
+    color: #856404;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.locations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.location-checkbox {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.location-checkbox:hover {
+    border-color: #4caf50;
+    background: #f1f8e9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.location-checkbox input[type="radio"] {
+    display: none;
+}
+
+.location-checkbox.selected {
+    border-color: #4caf50;
+    background: linear-gradient(135deg, #c8e6c9 0%, #dcedc8 100%);
+}
+
+.location-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.location-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+/* Warning Modal Specific Styles */
+.warning-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    animation: fadeIn 0.3s;
+}
+
+.warning-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.warning-modal-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    max-width: 550px;
+    width: 90%;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+    animation: slideIn 0.4s ease;
+}
+
+.warning-modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.warning-modal-header i {
+    font-size: 3.5rem;
+    color: #ff9800;
+}
+
+.warning-modal-header h4 {
+    margin: 0;
+    color: #1e3c72;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.warning-modal-body {
+    color: #495057;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    font-size: 1.05rem;
+}
+
+.warning-modal-body strong {
+    color: #d32f2f;
+    font-weight: 700;
+}
+
+.warning-modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.warning-modal-btn {
+    padding: 0.9rem 2rem;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 1rem;
+    min-width: 150px;
+}
+
+.warning-btn-proceed {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    color: white;
+}
+
+.warning-btn-proceed:hover {
+    background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+}
+
+.warning-btn-back {
+    background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+    color: #2c3e50;
+}
+
+.warning-btn-back:hover {
+    background: linear-gradient(135deg, #bdbdbd 0%, #9e9e9e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(189, 189, 189, 0.4);
+}
+    </style>
+        
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1><i class="fas fa-file-excel"></i> CWI Validator</h1>
+            <p>Professional Excel File Validation Tool</p>
+        </div>
+
+        <div class="validator-card">
+            <div class="card-header">
+                <h2>Excel File Validator</h2>
+                <div class="subtitle">Upload and validate your extracted data files</div>
+            </div>
+            <div class="card-body">
+                <div class="client-selection-section">
+                    <h5><i class="fas fa-building"></i> Select Client(s)</h5>
+                    <p class="subtitle-text">Please select a client (HDFC or ICICI - only one at a time) before uploading your file</p>
+                    
+                    <div class="clients-grid">
+                        <div class="client-checkbox" data-client="hdfc">
+                            <input type="checkbox" id="client-hdfc" value="HDFC Bank">
+                            <label for="client-hdfc">HDFC Bank</label>
+                        </div>
+                        <div class="client-checkbox" data-client="icici">
+                            <input type="checkbox" id="client-icici" value="ICICI Bank">
+                            <label for="client-icici">ICICI Bank</label>
+                        </div>
+                        <div class="client-checkbox" data-client="reliance">
+                            <input type="checkbox" id="client-reliance" value="Reliance Retail">
+                            <label for="client-reliance">Reliance Retail</label>
+                        </div>
+                        <div class="client-checkbox" data-client="shoppers">
+                            <input type="checkbox" id="client-shoppers" value="Shoppers Stop">
+                            <label for="client-shoppers">Shoppers Stop</label>
+                        </div>
+                        <div class="client-checkbox" data-client="cultfit">
+                            <input type="checkbox" id="client-cultfit" value="Cult Fit">
+                            <label for="client-cultfit">Cult Fit</label>
+                        </div>
+                        <div class="client-checkbox" data-client="kotak">
+                            <input type="checkbox" id="client-kotak" value="Kotak Bank">
+                            <label for="client-kotak">Kotak Bank</label>
+                        </div>
+                        <div class="client-checkbox" data-client="nuvama">
+                            <input type="checkbox" id="client-nuvama" value="Nuvama">
+                            <label for="client-nuvama">Nuvama</label>
+                        </div>
+                        <div class="client-checkbox" data-client="sleep">
+                            <input type="checkbox" id="client-sleep" value="The Sleep Company">
+                            <label for="client-sleep">The Sleep Company</label>
+                        </div>
+                        <div class="client-checkbox" data-client="papajohns">
+                            <input type="checkbox" id="client-papajohns" value="Papa John's">
+                            <label for="client-papajohns">Papa John's</label>
+                        </div>
+                        <div class="client-checkbox" data-client="starbucks">
+                            <input type="checkbox" id="client-starbucks" value="Starbucks">
+                            <label for="client-starbucks">Starbucks</label>
+                        </div>
+                        <div class="client-checkbox" data-client="subway">
+                            <input type="checkbox" id="client-subway" value="SubWay">
+                            <label for="client-subway">SubWay</label>
+                        </div>
+                        <div class="client-checkbox" data-client="others">
+                            <input type="checkbox" id="client-others" value="Others">
+                            <label for="client-others">Others</label>
+                        </div>
+                    </div>
+
+                    <div class="selected-clients-display" id="selected-clients-display">
+                        <h6><i class="fas fa-check-circle"></i> Selected Clients:</h6>
+                        <div class="selected-clients-list" id="selected-clients-list"></div>
+                    </div>
+                </div>
+
+                <div class="location-selection-section" id="location-selection-section">
+                    <div class="location-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="location-notice-text">
+                            <strong>📍 Location Selection (ICICI Bank Clients Only)</strong><br>
+                            If you are doing AI review for auditing purposes, please <strong>DO NOT</strong> select any location. This is only for ICICI Bank operational data.
+                        </div>
+                    </div>
+                    
+                    <h5><i class="fas fa-map-marker-alt"></i> Select Region (Optional for ICICI)</h5>
+                    
+                    <div class="locations-grid">
+                        <div class="location-checkbox" data-location="east">
+                            <input type="radio" name="location" id="location-east" value="east">
+                            <label for="location-east">
+                                <div class="location-icon">🌅</div>
+                                <div class="location-label">East</div>
+                            </label>
+                        </div>
+                        <div class="location-checkbox" data-location="west">
+                            <input type="radio" name="location" id="location-west" value="west">
+                            <label for="location-west">
+                                <div class="location-icon">🌄</div>
+                                <div class="location-label">West</div>
+                            </label>
+                        </div>
+                        <div class="location-checkbox" data-location="north">
+                            <input type="radio" name="location" id="location-north" value="north">
+                            <label for="location-north">
+                                <div class="location-icon">🧭</div>
+                                <div class="location-label">North</div>
+                            </label>
+                        </div>
+                        <div class="location-checkbox" data-location="south">
+                            <input type="radio" name="location" id="location-south" value="south">
+                            <label for="location-south">
+                                <div class="location-icon">🏝️</div>
+                                <div class="location-label">South</div>
+                            </label>
+                        </div>
+                    </div>
+                    </div>
+
+                <div class="info-section">
+                    <h5><i class="fas fa-info-circle"></i> Important Requirements</h5>
+                    <div class="info-item">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Upload your "Extracted Data" Excel file (.xlsx format)</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-ruler"></i>
+                        <span>Filename must contain square feet range (e.g., "myproject_1001-1500_data.xlsx")</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>File will be validated against CWI standards</span>
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" id="upload-form">
+                    <input type="hidden" name="selected_clients" id="selected-clients-input">
+                    
+                    <input type="hidden" name="selected_region" id="selected-region-input">
+                    
+                    <div class="upload-area" id="drop-zone">
+                        <input type="file" name="file" id="file-input" class="d-none" accept=".xlsx,.xls" disabled>
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Drag & drop your Excel file here</div>
+                        <div class="upload-subtext">or click to browse files</div>
+                        <div class="upload-disabled-message">⚠️ Please select at least one client first</div>
+                    </div>
+
+                    <div class="dual-upload-area" id="dual-drop-zone" style="display: none;">
+                        <h5 style="text-align: center; color: #1e3c72; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;">
+                            <i class="fas fa-exchange-alt"></i> Upload Files for Comparison
+                        </h5>
+                        
+                        <div class="dual-upload-grid">
+                            <div class="upload-box-dual hdfc-box" id="hdfc-upload-box">
+                                <input type="file" name="hdfc_file" id="hdfc-file-input" class="d-none" accept=".xlsx,.xls" disabled>
+                                <div class="upload-icon-dual">
+                                    <i class="fas fa-file-excel"></i>
+                                </div>
+                                <div class="upload-text-dual">HDFC Bank File</div>
+                                <div class="upload-subtext-dual">Drag & drop or click to browse</div>
+                                <div class="selected-file-name" id="hdfc-file-name" style="display: none;">
+                                    <i class="fas fa-check-circle"></i> <span></span>
+                                </div>
+                            </div>
+                            
+                            <div class="vs-divider-upload">
+                                <div class="vs-circle">VS</div>
+                            </div>
+                            
+                            <div class="upload-box-dual icici-box" id="icici-upload-box">
+                                <input type="file" name="icici_file" id="icici-file-input" class="d-none" accept=".xlsx,.xls" disabled>
+                                <div class="upload-icon-dual">
+                                    <i class="fas fa-file-excel"></i>
+                                </div>
+                                <div class="upload-text-dual">ICICI Bank File</div>
+                                <div class="upload-subtext-dual">Drag & drop or click to browse</div>
+                                <div class="selected-file-name" id="icici-file-name" style="display: none;">
+                                    <i class="fas fa-check-circle"></i> <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="selected-file" id="selected-file">
+                        <div class="file-info">
+                            <i class="fas fa-file-excel"></i>
+                            <span id="file-name"></span>
+                        </div>
+                    </div>
+
+                    <div class="loading-spinner" id="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2">Processing your file...</div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn validate-btn btn-lg" id="validate-btn" disabled>
+                            <i class="fas fa-check-circle"></i> Validate File
+                        </button>
+                    </div>
+                </form>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <h6>Fast Processing</h6>
+                        <p>Quick validation with instant results</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h6>Secure</h6>
+                        <p>Your data is processed securely</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-download"></i>
+                        <h6>Export Reports</h6>
+                        <p>Download detailed validation reports</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h6>Analytics</h6>
+                        <p>Visual analysis of your data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="maintenance-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-tools"></i>
+                <h4>Under Maintenance</h4>
+            </div>
+            <div class="modal-body">
+                <p>The validation threshold tool for <strong id="modal-client-name"></strong> is currently under maintenance.</p>
+                <p>We are working diligently to enhance our services for this client. Please check back soon or contact support for more information.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-close-btn" onclick="closeModal()">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="warning-modal" id="location-warning-modal">
+        <div class="warning-modal-content">
+            <div class="warning-modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h4>⚠️ Important Notice</h4>
+            </div>
+            <div class="warning-modal-body">
+                <p><strong>Are you performing an AI review or audit?</strong></p>
+                <p>If you are <strong>reviewing files for auditing purposes</strong>, please <strong>DO NOT</strong> select a location. Location selection is only for <strong>ICICI Bank operational clients</strong>.</p>
+                <p>If you are an <strong>ICICI Bank client</strong> working with regional data, please proceed with location selection.</p>
+            </div>
+            <div class="warning-modal-footer">
+                <button class="warning-modal-btn warning-btn-back" onclick="closeLocationWarning(false)">
+                    <i class="fas fa-arrow-left"></i> No, Go Back
+                </button>
+                <button class="warning-modal-btn warning-btn-proceed" onclick="closeLocationWarning(true)">
+                    <i class="fas fa-check"></i> Yes, I Know - Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const selectedFile = document.getElementById('selected-file');
+    const fileName = document.getElementById('file-name');
+    const uploadForm = document.getElementById('upload-form');
+    const validateBtn = document.getElementById('validate-btn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const clientCheckboxes = document.querySelectorAll('.client-checkbox input[type="checkbox"]');
+    const selectedClientsDisplay = document.getElementById('selected-clients-display');
+    const selectedClientsList = document.getElementById('selected-clients-list');
+    const selectedClientsInput = document.getElementById('selected-clients-input');
+    const maintenanceModal = document.getElementById('maintenance-modal');
+    const modalClientName = document.getElementById('modal-client-name');
+
+    // ===== NEW: LOCATION SELECTION VARIABLES =====
+    const locationSection = document.getElementById('location-selection-section');
+    const locationCheckboxes = document.querySelectorAll('.location-checkbox');
+    const locationWarningModal = document.getElementById('location-warning-modal');
+    const selectedRegionInput = document.getElementById('selected-region-input');
+    let pendingLocationSelection = null;
+    let selectedLocation = null;
+
+    // Clients under maintenance (all except HDFC and ICICI)
+    const maintenanceClients = ['reliance', 'shoppers', 'cultfit', 'kotak', 'nuvama', 'sleep', 'papajohns', 'starbucks', 'subway', 'others'];
+
+    let selectedClients = [];
+
+    // ===== CLIENT SELECTION LOGIC =====
+    clientCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const clientBox = this.closest('.client-checkbox');
+            const clientKey = clientBox.dataset.client;
+            const clientName = this.value;
+
+            // Check if client is under maintenance
+            if (this.checked && maintenanceClients.includes(clientKey)) {
+                this.checked = false;
+                modalClientName.textContent = clientName;
+                maintenanceModal.classList.add('show');
+                return;
+            }
+
+            // Allow both HDFC and ICICI to be selected together
+            if (this.checked) {
+                // If selecting HDFC or ICICI
+                if (clientKey === 'hdfc' || clientKey === 'icici') {
+                    // Check if the other one is selected
+                    const otherClient = clientKey === 'hdfc' ? 'icici' : 'hdfc';
+                    const otherCheckbox = document.getElementById(`client-${otherClient}`);
+                    
+                    if (otherCheckbox.checked) {
+                        // Both are now selected - this is allowed for comparison mode
+                        // Don't uncheck anything
+                    } else {
+                        // Only one of HDFC/ICICI is selected - uncheck all others
+                        clientCheckboxes.forEach(cb => {
+                            if (cb !== this && !cb.closest('.client-checkbox').dataset.client.match(/hdfc|icici/)) {
+                                cb.checked = false;
+                                cb.closest('.client-checkbox').classList.remove('selected');
+                                selectedClients = selectedClients.filter(c => c !== cb.value);
+                            }
+                        });
+                    }
+                } else {
+                    // Selecting a different client - uncheck HDFC and ICICI
+                    ['hdfc', 'icici'].forEach(key => {
+                        const cb = document.getElementById(`client-${key}`);
+                        if (cb.checked) {
+                            cb.checked = false;
+                            cb.closest('.client-checkbox').classList.remove('selected');
+                            selectedClients = selectedClients.filter(c => c !== cb.value);
+                        }
+                    });
+                }
+                
+                clientBox.classList.add('selected');
+                if (!selectedClients.includes(clientName)) {
+                    selectedClients.push(clientName);
+                }
+            } else {
+                clientBox.classList.remove('selected');
+                selectedClients = selectedClients.filter(c => c !== clientName);
+            }
+
+            updateSelectedClientsDisplay();
+            updateUploadAreaState();
+            updateLocationSectionVisibility(); // ✅ NEW: Update location visibility
+        });
+    });
+
+    // ===== LOCATION SELECTION LOGIC (NEW) =====
+    function updateLocationSectionVisibility() {
+        // Show location section only when ICICI is selected (not in comparison mode)
+        const isIciciOnly = selectedClients.includes('ICICI Bank') && !selectedClients.includes('HDFC Bank');
+        
+        if (isIciciOnly) {
+            locationSection.classList.add('show');
+        } else {
+            locationSection.classList.remove('show');
+            // Clear location selection if ICICI is not the only selection
+            clearLocationSelection();
+        }
+    }
+
+    // Handle location selection with warning
+    locationCheckboxes.forEach(box => {
+        box.addEventListener('click', function() {
+            const locationKey = this.dataset.location;
+            const radioInput = this.querySelector('input[type="radio"]');
+            
+            // If clicking the same location, deselect it
+            if (selectedLocation === locationKey) {
+                clearLocationSelection();
+                return;
+            }
+            
+            // Store pending selection and show warning
+            pendingLocationSelection = { box: this, key: locationKey, radio: radioInput };
+            locationWarningModal.classList.add('show');
+        });
+    });
+
+    function closeLocationWarning(proceed) {
+        locationWarningModal.classList.remove('show');
+        
+        if (proceed && pendingLocationSelection) {
+            // User confirmed - apply selection
+            applyLocationSelection();
+        } else {
+            // User declined - cancel selection
+            pendingLocationSelection = null;
+        }
+    }
+
+    function applyLocationSelection() {
+        if (!pendingLocationSelection) return;
+        
+        const { box, key, radio } = pendingLocationSelection;
+        
+        // Clear previous selection
+        locationCheckboxes.forEach(cb => {
+            cb.classList.remove('selected');
+            cb.querySelector('input[type="radio"]').checked = false;
+        });
+        
+        // Apply new selection
+        box.classList.add('selected');
+        radio.checked = true;
+        selectedLocation = key;
+        selectedRegionInput.value = key;
+        
+        console.log(`✅ Location selected: ${key}`);
+        
+        // Clear pending
+        pendingLocationSelection = null;
+    }
+
+    function clearLocationSelection() {
+        locationCheckboxes.forEach(cb => {
+            cb.classList.remove('selected');
+            cb.querySelector('input[type="radio"]').checked = false;
+        });
+        selectedLocation = null;
+        selectedRegionInput.value = '';
+        pendingLocationSelection = null;
+        
+        console.log('📍 Location selection cleared');
+    }
+
+    // Close modal on outside click
+    locationWarningModal.addEventListener('click', function(e) {
+        if (e.target === locationWarningModal) {
+            closeLocationWarning(false);
+        }
+    });
+
+    // ===== EXISTING FUNCTIONS =====
+    function updateSelectedClientsDisplay() {
+        if (selectedClients.length > 0) {
+            selectedClientsDisplay.classList.add('show');
+            selectedClientsList.innerHTML = selectedClients.map(client => 
+                `<span class="client-tag">${client}</span>`
+            ).join('');
+            selectedClientsInput.value = selectedClients.join(',');
+        } else {
+            selectedClientsDisplay.classList.remove('show');
+            selectedClientsList.innerHTML = '';
+            selectedClientsInput.value = '';
+        }
+    }
+
+    function updateUploadAreaState() {
+        const isBothSelected = selectedClients.includes('HDFC Bank') && selectedClients.includes('ICICI Bank');
+        
+        if (isBothSelected) {
+            // Show dual upload, hide single upload
+            document.getElementById('drop-zone').style.display = 'none';
+            document.getElementById('dual-drop-zone').style.display = 'block';
+            document.getElementById('hdfc-file-input').disabled = false;
+            document.getElementById('icici-file-input').disabled = false;
+        } else if (selectedClients.length > 0) {
+            // Show single upload
+            document.getElementById('drop-zone').style.display = 'block';
+            document.getElementById('dual-drop-zone').style.display = 'none';
+            dropZone.classList.add('enabled');
+            fileInput.disabled = false;
+            document.querySelector('.upload-disabled-message').style.display = 'none';
+        } else {
+            // No client selected
+            document.getElementById('drop-zone').style.display = 'block';
+            document.getElementById('dual-drop-zone').style.display = 'none';
+            dropZone.classList.remove('enabled');
+            fileInput.disabled = true;
+            document.querySelector('.upload-disabled-message').style.display = 'block';
+            validateBtn.disabled = true;
+        }
+    }
+
+    function closeModal() {
+        maintenanceModal.classList.remove('show');
+    }
+
+    // Close modal on outside click
+    maintenanceModal.addEventListener('click', function(e) {
+        if (e.target === maintenanceModal) {
+            closeModal();
+        }
+    });
+
+    // Click to select file
+    dropZone.addEventListener('click', () => {
+        if (selectedClients.length > 0) {
+            fileInput.click();
+        }
+    });
+
+    // Drag and drop events
+    dropZone.addEventListener('dragover', (e) => {
+        if (selectedClients.length > 0) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        }
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        if (selectedClients.length > 0) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                showSelectedFile(files[0]);
+            }
+        } else {
+            e.preventDefault();
+        }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showSelectedFile(e.target.files[0]);
+        }
+    });
+
+    // Show selected file
+    function showSelectedFile(file) {
+        fileName.textContent = file.name;
+        selectedFile.style.display = 'block';
+        validateBtn.disabled = false;
+        
+        // Add animation
+        selectedFile.style.opacity = '0';
+        selectedFile.style.transform = 'translateY(10px)';
+        
+        setTimeout(() => {
+            selectedFile.style.transition = 'all 0.3s ease';
+            selectedFile.style.opacity = '1';
+            selectedFile.style.transform = 'translateY(0)';
+        }, 100);
+    }
+
+    // Form submission
+    uploadForm.addEventListener('submit', (e) => {
+        if (selectedClients.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one client first.');
+            return;
+        }
+
+        // Check if comparison mode
+        const isComparisonMode = selectedClients.includes('HDFC Bank') && selectedClients.includes('ICICI Bank');
+        
+        if (isComparisonMode) {
+            // Check both files are uploaded
+            const hdfcFile = document.getElementById('hdfc-file-input').files.length > 0;
+            const iciciFile = document.getElementById('icici-file-input').files.length > 0;
+            
+            if (!hdfcFile || !iciciFile) {
+                e.preventDefault();
+                alert('Please upload both HDFC and ICICI files for comparison.');
+                return;
+            }
+        } else {
+            // Single file mode
+            if (fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Please select a file to validate.');
+                return;
+            }
+        }
+
+        // Show loading spinner
+        validateBtn.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+    });
+
+    // Handle HDFC file upload with drag and drop
+    const hdfcUploadBox = document.getElementById('hdfc-upload-box');
+    const hdfcFileInput = document.getElementById('hdfc-file-input');
+
+    hdfcUploadBox.addEventListener('click', () => {
+        hdfcFileInput.click();
+    });
+
+    hdfcUploadBox.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        hdfcUploadBox.classList.add('dragover');
+    });
+
+    hdfcUploadBox.addEventListener('dragleave', () => {
+        hdfcUploadBox.classList.remove('dragover');
+    });
+
+    hdfcUploadBox.addEventListener('drop', (e) => {
+        e.preventDefault();
+        hdfcUploadBox.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            hdfcFileInput.files = files;
+            showHdfcFileName(files[0]);
+        }
+    });
+
+    hdfcFileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showHdfcFileName(e.target.files[0]);
+        }
+    });
+
+    function showHdfcFileName(file) {
+        const fileNameDisplay = document.querySelector('#hdfc-file-name span');
+        fileNameDisplay.textContent = file.name;
+        document.getElementById('hdfc-file-name').style.display = 'block';
+        hdfcUploadBox.classList.add('file-uploaded');
+        checkBothFilesSelected();
+    }
+
+    // Handle ICICI file upload with drag and drop
+    const iciciUploadBox = document.getElementById('icici-upload-box');
+    const iciciFileInput = document.getElementById('icici-file-input');
+
+    iciciUploadBox.addEventListener('click', () => {
+        iciciFileInput.click();
+    });
+
+    iciciUploadBox.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        iciciUploadBox.classList.add('dragover');
+    });
+
+    iciciUploadBox.addEventListener('dragleave', () => {
+        iciciUploadBox.classList.remove('dragover');
+    });
+
+    iciciUploadBox.addEventListener('drop', (e) => {
+        e.preventDefault();
+        iciciUploadBox.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            iciciFileInput.files = files;
+            showIciciFileName(files[0]);
+        }
+    });
+
+    iciciFileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showIciciFileName(e.target.files[0]);
+        }
+    });
+
+    function showIciciFileName(file) {
+        const fileNameDisplay = document.querySelector('#icici-file-name span');
+        fileNameDisplay.textContent = file.name;
+        document.getElementById('icici-file-name').style.display = 'block';
+        iciciUploadBox.classList.add('file-uploaded');
+        checkBothFilesSelected();
+    }
+
+    function checkBothFilesSelected() {
+        const hdfcFile = hdfcFileInput.files.length > 0;
+        const iciciFile = iciciFileInput.files.length > 0;
+        
+        if (hdfcFile && iciciFile) {
+            validateBtn.disabled = false;
+            validateBtn.style.display = 'block';
+        } else {
+            validateBtn.disabled = true;
+        }
+    }
+
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', () => {
+        // Animate feature cards on scroll
+        const featureCards = document.querySelectorAll('.feature-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                }
+            });
+        });
+
+        featureCards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            observer.observe(card);
+        });
+    });
+</script>
+</body>
+</html>

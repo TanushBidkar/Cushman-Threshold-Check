@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Validation Results - CWI Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px 0;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-section h1 {
+            color: white;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-section p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .results-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border: none;
+        }
+
+        .card-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .card-header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .summary-section {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .summary-title {
+            text-align: center;
+            color: #1e3c72;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card.total {
+            border-left-color: #6c757d;
+        }
+
+        .stat-card.valid {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.invalid {
+            border-left-color: #dc3545;
+        }
+
+        .stat-card.accuracy {
+            border-left-color: #007bff;
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-card.total .icon {
+            color: #6c757d;
+        }
+
+        .stat-card.valid .icon {
+            color: #28a745;
+        }
+
+        .stat-card.invalid .icon {
+            color: #dc3545;
+        }
+
+        .stat-card.accuracy .icon {
+            color: #007bff;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-card .label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.8rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .action-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .action-btn.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .action-btn.warning:hover {
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+
+        .action-btn.secondary:hover {
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+        .mode-indicator-results {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 2px solid #2196f3;
+    border-radius: 25px;
+    padding: 0.8rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #0d47a1;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.mode-indicator-results i {
+    color: #2196f3;
+    font-size: 1.1rem;
+}
+
+        .results-section {
+            padding: 1.5rem;
+        }
+
+        .results-title {
+            color: #1e3c72;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-height: 55vh;
+            position: relative;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 55vh;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .table-scroll-indicator {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            z-index: 20;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .table {
+            margin: 0;
+            font-size: 0.8rem;
+            width: 100%;
+            table-layout: auto;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 0.7rem 0.6rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .table tbody td {
+            padding: 0.6rem 0.6rem;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            position: relative; 
+        }
+
+        /* Increase width for Original_Particular column (2nd column) */
+        .table tbody td:nth-child(2) {
+            max-width: 200px; /* Increase from 200px to 350px */
+            min-width: 250px; /* Set minimum width */
+        }
+        
+        .table thead th:nth-child(2) {
+            max-width: 200px;
+            min-width: 250px;
+        }
+
+        .table tbody td span[title] {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: help;
+        }
+        /* NEW: Specific styling for Unit column */
+        .table tbody td:nth-child(4) {
+            font-weight: 600;
+            color: #495057;
+            background-color: #f8f9fa;
+            max-width: 80px;
+        }
+        
+        .table thead th:nth-child(4) {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+
+        .table tbody td:last-child {
+            max-width: 150px;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        .btn-analysis {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .btn-analysis:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .chart-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .chart-btn:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .chart-btn.active {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        #chart-container {
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #analysisGraph {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .loading-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+
+        .btn-close {
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-btn {
+                justify-content: center;
+                padding: 0.7rem 1.5rem;
+            }
+            
+            .chart-btn-group {
+                flex-direction: column;
+            }
+            
+            .table-wrapper {
+                max-height: 45vh;
+            }
+            
+            .table {
+                font-size: 0.75rem;
+            }
+            
+            .table thead th,
+            .table tbody td {
+                padding: 0.5rem 0.4rem;
+            }
+
+            .table tbody td {
+                max-width: 120px;
+            }
+        }
+
+        /* Animation for stats cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Pulse animation for invalid count */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .mode-switch-section {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+    border-top: 1px solid #e9ecef;
+}
+
+.mode-switch-title {
+    text-align: center;
+    color: #1e3c72;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.mode-switch-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+}
+
+.mode-switch-btn {
+    background: white;
+    border: 3px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2c3e50;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.mode-switch-btn:not(.disabled):hover {
+    border-color: #4a6cf7;
+    background: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
+    color: #2c3e50;
+}
+
+.mode-switch-btn.active {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+}
+
+.mode-switch-btn.active i.fa-check-circle {
+    color: #28a745;
+    margin-left: 0.3rem;
+}
+
+.mode-switch-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+}
+
+.mode-switch-btn .coming-soon-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff9800;
+    color: white;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .mode-switch-buttons {
+        flex-direction: column;
+    }
+    
+    .mode-switch-btn {
+        width: 100%;
+    }
+}
+
+/* ===== RATE MODE SPECIFIC STYLING ===== */
+        /* This will be activated by adding a class to the body/table */
+        
+        body.rate-mode .table thead th:nth-child(3),  /* Rate header */
+        body.rate-mode .table thead th:nth-child(4),  /* Unit header */
+        body.rate-mode .table thead th:nth-child(5),  /* Quantity header */
+        body.rate-mode .table thead th:nth-child(6) { /* Amount header */
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            color: white !important;
+        }
+
+        body.rate-mode .table tbody td:nth-child(3),  /* Rate body cells */
+        body.rate-mode .table tbody td:nth-child(4),  /* Unit body cells */
+        body.rate-mode .table tbody td:nth-child(5),  /* Quantity body cells */
+        body.rate-mode .table tbody td:nth-child(6) { /* Amount body cells */
+            font-weight: 600;
+            color: #495057;
+            background-color: #f8f9fa;
+        }
+
+        body.rate-mode .table tbody td:nth-child(4) {
+            max-width: 80px;
+        }
+
+        /* Grouped mode specific styling */
+body.grouped-mode .table {
+    font-size: 0.95rem; /* Larger text */
+}
+
+body.grouped-mode .table thead th,
+body.grouped-mode .table tbody td {
+    padding: 0.9rem 0.8rem; /* More padding */
+}
+
+body.grouped-mode .table thead th:nth-child(3),  /* CWI Amount */
+body.grouped-mode .table thead th:nth-child(4) { /* Rate per sqfeet */
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%) !important;
+}
+
+body.grouped-mode .table tbody td:nth-child(3),
+body.grouped-mode .table tbody td:nth-child(4) {
+    font-weight: 600;
+    color: #495057;
+    background-color: #fff3e0;
+    font-size: 1rem; /* Bigger font for amounts */
+}
+
+/* Grouped mode validation columns - wrapped text */
+body.grouped-mode .table tbody td:nth-child(7),  /* CWI_Validation */
+body.grouped-mode .table tbody td:nth-child(8) { /* Rate_Validation */
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    min-width: 250px;
+    max-width: 350px;
+    line-height: 1.5;
+    padding: 0.9rem 0.8rem !important;
+    font-size: 0.85rem;
+    background-color: #f8f9fa;
+}
+
+body.grouped-mode .table thead th:nth-child(7),
+body.grouped-mode .table thead th:nth-child(8) {
+    white-space: normal !important;
+    min-width: 250px;
+    background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%) !important;
+}
+
+/* Highlight validation messages on hover */
+/* Highlight validation messages on hover */
+body.grouped-mode .table tbody td:nth-child(7):hover, /* CWI_Validation */
+body.grouped-mode .table tbody td:nth-child(8):hover, /* Rate_Validation (Specific) */
+body.grouped-mode .table tbody td:last-child:hover {  /* TARGETS THE LAST CELL AUTOMATICALLY */
+    background-color: #e3f2fd !important;
+    font-weight: 600;
+    cursor: help;
+    box-shadow: inset 0 0 10px rgba(0,123,255,0.2);
+    transition: all 0.2s ease-in-out; /* Optional: Adds a smooth fade effect */
+}
+
+/* Make entire table scrollable horizontally */
+body.grouped-mode .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.grouped-mode .table {
+    min-width: 1400px;
+}
+
+/* Truncate table cells and add ellipsis */
+        table.table td {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        /* Ensure span truncates text with ellipsis */
+        table td span[title] {
+            cursor: help;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        /* Custom dark tooltip on hover */
+        table td span[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            white-space: normal;
+            width: max-content;
+            max-width: 500px;
+            z-index: 9999;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* Clickable threshold styling */
+.threshold-clickable {
+    cursor: pointer;
+    color: #007bff;
+    text-decoration: underline;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.threshold-clickable:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+/* Enhanced tooltip for threshold values */
+.threshold-clickable[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100%;
+    background-color: #2c3e50;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    white-space: pre-line;
+    width: max-content;
+    max-width: 400px;
+    z-index: 10000;
+    font-size: 12px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    margin-bottom: 8px;
+    line-height: 1.6;
+    font-weight: normal;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+/* Arrow for tooltip */
+.threshold-clickable[title]:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100%;
+    margin-bottom: -1px;
+    border: 8px solid transparent;
+    border-top-color: #2c3e50;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+/* Around line 200-300 in <style> section */
+
+/* Allow validation message column to wrap text */
+.table tbody td:nth-child(7) {  /* Validation_Message column */
+    white-space: pre-line !important;  /* Preserve line breaks */
+    word-wrap: break-word !important;
+    min-width: 300px;
+    max-width: 400px;
+    line-height: 1.6;
+    padding: 0.9rem 0.8rem !important;
+    font-size: 0.85rem;
+}
+
+.table thead th:nth-child(7) {
+    white-space: normal !important;
+    min-width: 300px;
+}
+
+/* Highlight selected region in validation message */
+body.rate-mode .table tbody td:nth-child(7):hover {
+    background-color: #e3f2fd !important;
+    cursor: help;
+}
+
+/* 1. GREEN HEADER FOR SELECTED REGION */
+    th.selected-region-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        color: white !important;
+        border-bottom: 3px solid #155724 !important;
+        font-weight: 800 !important;
+        font-size: 0.9rem !important;
+        position: sticky;
+        top: 0;
+        z-index: 15; /* Higher than normal headers */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* 2. REDUCE SQ. FEET RANGE COLUMN WIDTH (Specifically for Rate Mode) */
+    /* Sq_Feet_Range is the 7th column in the Regional Rate column order */
+    body.rate-mode .table th:nth-child(7),
+    body.rate-mode .table td:nth-child(7) {
+        max-width: 90px !important;  /* Force reduced width */
+        width: 90px !important;
+        min-width: 90px !important;
+        white-space: normal !important; /* Allow wrapping like "500- 2500" */
+        font-size: 0.8rem;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    /* Optional: Make the text inside Sq Ft Range bold for readability */
+    body.rate-mode .table td:nth-child(7) {
+        font-weight: 600;
+        color: #1e3c72;
+    }
+/* Replace the existing tooltip CSS with this improved version */
+
+    </style>
+</head>
+<body class="{% if validation_mode == 'rate' %}rate-mode{% elif validation_mode == 'grouped' %}grouped-mode{% endif %}">
+    <div class="main-container">
+        <div class="header-section">
+            <h1><i class="fas fa-chart-line"></i> Validation Results</h1>
+            <p>Comprehensive analysis of your Excel file</p>
+        </div>
+
+        <div class="results-card">
+            <div class="card-header">
+                <h2>Validation Report</h2>
+                <div class="subtitle">Complete analysis with detailed insights</div>
+                {% if validation_mode %}
+<div class="mode-indicator-results">
+    <i class="fas fa-info-circle"></i>
+    <span>Current Mode: <strong>{{ validation_mode|capitalize }}</strong></span>
+    {% if region and region != '' %}
+    <span style="margin-left: 1rem; padding: 0.4rem 0.8rem; background: #ff9800; color: white; border-radius: 15px; font-weight: 700;">
+        📍 Region: {{ region|upper }}
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+            </div>
+            
+            <div class="summary-section">
+                <div class="summary-title">
+                    <i class="fas fa-chart-pie"></i> Summary Overview
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <div class="icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="number">{{ total }}</div>
+                        <div class="label">Total Rows</div>
+                    </div>
+                    
+                    <div class="stat-card valid">
+                        <div class="icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="number">{{ valid }}</div>
+                        <div class="label">Valid Rows</div>
+                    </div>
+                    
+                    <div class="stat-card invalid">
+                        <div class="icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="number">{{ invalid }}</div>
+                        <div class="label">Invalid Rows</div>
+                    </div>
+                    
+                    <div class="stat-card accuracy">
+                        <div class="icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="number">{{ accuracy }}</div>
+                        <div class="label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('download_file', filename=full_report_filename) }}" class="action-btn">
+                    <i class="fas fa-download"></i> Download Full Report
+                </a>
+                
+                {% if invalid > 0 %}
+                <a href="{{ url_for('download_file', filename=invalid_report_filename) }}" class="action-btn warning">
+                    <i class="fas fa-exclamation-triangle"></i> Download Invalid Rows
+                </a>
+                {% endif %}
+                
+                <a href="/" class="action-btn secondary">
+                    <i class="fas fa-upload"></i> Validate Another File
+                </a>
+            </div>
+
+            <!-- NEW: Mode Selection Buttons (Only for ICICI) -->
+            <!-- Mode Selection Buttons (HDFC and ICICI) -->
+            {% if client in ['HDFC Bank', 'ICICI Bank'] %}
+<div class="mode-switch-section">
+    <div class="mode-switch-title">
+        <i class="fas fa-sliders-h"></i> Switch Validation Mode
+    </div>
+    <div class="mode-switch-buttons">
+        <a href="/switch_mode/quantity" class="mode-switch-btn {% if validation_mode == 'quantity' %}active{% endif %}">
+            <i class="fas fa-hashtag"></i>
+            <span>Quantity</span>
+            {% if validation_mode == 'quantity' %}<i class="fas fa-check-circle"></i>{% endif %}
+        </a>
+        
+        <!-- ✅ Only show Amount for non-regional modes -->
+        {% if not region or region == '' %}
+        <a href="/switch_mode/amount" class="mode-switch-btn {% if validation_mode == 'amount' %}active{% endif %}">
+            <i class="fas fa-rupee-sign"></i>
+            <span>Amount</span>
+            {% if validation_mode == 'amount' %}<i class="fas fa-check-circle"></i>{% endif %}
+        </a>
+        {% endif %}
+        
+        <a href="/switch_mode/rate" class="mode-switch-btn {% if validation_mode == 'rate' %}active{% endif %}">
+            <i class="fas fa-percentage"></i>
+            <span>Rate</span>
+            {% if validation_mode == 'rate' %}<i class="fas fa-check-circle"></i>{% endif %}
+        </a>
+        
+        <!-- ✅ Only show Grouped for non-regional modes -->
+        {% if not region or region == '' %}
+        <a href="/switch_mode/grouped" class="mode-switch-btn {% if validation_mode == 'grouped' %}active{% endif %}">
+            <i class="fas fa-layer-group"></i>
+            <span>Grouped (Per sq.feet)</span>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+            <div class="results-section">
+                <div class="results-title">
+                    <i class="fas fa-table"></i> Detailed Results
+                </div>
+                <div class="table-container">
+                    <div class="table-wrapper" id="table-wrapper">
+                        {{ table_html|safe }}
+                    </div>
+                    <div class="table-scroll-indicator" id="scroll-indicator" style="display: none;">
+                        <i class="fas fa-arrows-alt-h"></i> Scroll horizontally to view all columns
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analysisModalLabel">
+                        <i class="fas fa-chart-area"></i> Validation Analysis
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="chart-btn-group">
+                        <button type="button" class="btn chart-btn" data-chart-type="bell_curve">
+                            <i class="fas fa-bell"></i> Bell Curve
+                        </button>
+                        <button type="button" class="btn chart-btn" data-chart-type="bar_plot">
+                            <i class="fas fa-chart-bar"></i> Bar Plot
+                        </button>
+                        <button type="button" class="btn chart-btn" data-chart-type="box_plot">
+                            <i class="fas fa-box"></i> Box Plot
+                        </button>
+                        <button type="button" class="btn chart-btn" data-chart-type="threshold_line">
+                            <i class="fas fa-chart-line"></i> Threshold Line
+                        </button>
+                    </div>
+                    <hr>
+                    <div id="chart-container">
+                        <div id="analysisText" class="lead">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            Please select a chart type to view the analysis
+                        </div>
+                        <img id="analysisGraph" src="" alt="Analysis Graph" style="display: none;" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- ✅ NEW: Regional Mode Notice -->
+{% if region and region != '' %}
+<div style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #fff3cd 0%, #ffe0b2 100%); border-left: 5px solid #ff9800; margin: 1.5rem; border-radius: 10px;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <i class="fas fa-info-circle" style="font-size: 1.5rem; color: #f57c00;"></i>
+        <div style="color: #856404; font-weight: 600; line-height: 1.6;">
+            <strong>🗺️ Regional Mode Active ({{ region|upper }})</strong><br>
+            <span style="font-weight: 400; font-size: 0.9rem;">
+                You are using ICICI Bank's <strong>{{ region|upper }}</strong> regional model with larger sqft ranges (500-2500, 2500-5000, 5000+). Only <strong>Rate</strong> and <strong>Quantity</strong> modes are available.
+            </span>
+        </div>
+    </div>
+</div>
+    
+
+{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
+        const analysisText = document.getElementById('analysisText');
+        const analysisGraph = document.getElementById('analysisGraph');
+        const analysisModalLabel = document.getElementById('analysisModalLabel');
+        const chartContainer = document.getElementById('chart-container');
+        let currentRowData = {};
+        let activeChartBtn = null;
+
+        // When "View Analysis" is clicked, get data from the button and open the modal
+        // When "View Analysis" is clicked, get data from the button and open the modal
+document.querySelectorAll('.btn-analysis').forEach(button => {
+    button.addEventListener('click', function () {
+        currentRowData = {
+            particular: this.dataset.particular,
+            quantity: this.dataset.quantity,
+            range: this.dataset.range,
+            client: this.dataset.client,
+            mode: this.dataset.mode || 'quantity',
+            region: this.dataset.region || '',  // ✅ NEW: Capture region
+        };
+
+        analysisModalLabel.innerHTML = `<i class="fas fa-chart-area"></i> Analysis for: ${currentRowData.particular}`;
+        
+        // ✅ FIX: Clear the chart container completely and show fresh message
+        chartContainer.innerHTML = `
+            <div id="analysisText" class="lead">
+                <i class="fas fa-info-circle text-primary"></i>
+                Please select a chart type to view the analysis
+            </div>
+        `;
+        
+        // ✅ FIX: Remove active class from all chart buttons
+        document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+        activeChartBtn = null;
+        
+        analysisModal.show();
+    });
+});
+
+        // When a chart type button inside the modal is clicked, fetch the graph
+document.querySelectorAll('.chart-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const chartType = this.getAttribute('data-chart-type');
+        
+        document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        activeChartBtn = this;
+        
+        chartContainer.innerHTML = `
+            <div class="loading-chart">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="text-muted">Generating ${chartType.replace('_', ' ')}...</div>
+            </div>
+        `;
+
+        const { particular, quantity, range, client, mode, region } = currentRowData;
+        // ✅ NEW: Add region parameter to URL
+        const url = `/graph?type=${chartType}&range=${encodeURIComponent(range)}&particular=${encodeURIComponent(particular)}&value=${quantity}&client=${encodeURIComponent(client)}&mode=${encodeURIComponent(mode)}&region=${encodeURIComponent(region || '')}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            chartContainer.innerHTML = `
+                                <div class="text-danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    ${data.error}
+                                </div>
+                            `;
+                        } else {
+                            chartContainer.innerHTML = `
+                                <div class="mb-3">${data.explanation}</div>
+                                <img id="analysisGraph" src="data:image/png;base64,${data.image}" alt="Analysis Graph" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" />
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        chartContainer.innerHTML = `
+                            <div class="text-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Failed to load analysis chart. Please try again.
+                            </div>
+                        `;
+                        console.error('Error:', error);
+                    });
+            });
+        });
+
+        const tableWrapper = document.querySelector('.table-wrapper');
+        const scrollIndicator = document.getElementById('scroll-indicator');
+        
+        if (tableWrapper) {
+            tableWrapper.style.scrollBehavior = 'smooth';
+            
+            const table = tableWrapper.querySelector('table');
+            if (table && table.scrollWidth > tableWrapper.clientWidth) {
+                scrollIndicator.style.display = 'block';
+                setTimeout(() => {
+                    scrollIndicator.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.href && this.href.includes('download')) {
+                    const originalContent = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalContent;
+                    }, 2000);
+                }
+            });
+        });
+
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        const invalidCard = document.querySelector('.stat-card.invalid');
+        if (invalidCard && parseInt(invalidCard.querySelector('.number').textContent) > 0) {
+            invalidCard.style.animation = 'pulse 2s infinite';
+        }
+
+        // ✅ NEW: Convert **text** to <strong>text</strong> in validation messages
+        document.querySelectorAll('.table tbody td:nth-child(7)').forEach(cell => {
+            cell.innerHTML = cell.innerHTML.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #28a745; font-weight: 700;">$1</strong>');
+        });
+    });
+
+    // Handle threshold click events
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('threshold-clickable')) {
+            const tooltip = e.target.getAttribute('title');
+            if (tooltip && tooltip.trim() !== '') {
+                const formattedTooltip = tooltip.replace(/\n/g, '\n');
+                alert('Files with this quantity value:\n\n' + formattedTooltip);
+            }
+        }
+    });
+</script>
+</body>
+</html>

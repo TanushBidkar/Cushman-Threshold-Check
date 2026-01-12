@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QAR Analysis - ICICI vs Other Banks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .analysis-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-section {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .analysis-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .card-header-custom {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .card-header-custom h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .card-header-custom p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .table-responsive {
+            max-height: 70vh;
+            overflow: auto;
+        }
+        
+        /* TABLE HEADER - BLUE BOX STYLE */
+.table thead th {
+    /* Dark Blue Gradient Background */
+    background: linear-gradient(180deg, #1565C0 0%, #0D47A1 100%) !important;
+    color: white;
+    
+    /* Box Styling */
+    padding: 15px 12px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2); /* Faint separator lines */
+    border-bottom: 3px solid #002171; /* Darker bottom border for depth */
+    
+    /* Text Alignment & Single Line Enforcement */
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap; /* <--- KEEPS HEADER ON ONE LINE */
+    vertical-align: middle;
+    
+    /* Sticky Header */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Optional: Make the first column (Sr.No) slightly darker or distinct */
+.table thead th:first-child {
+    border-top-left-radius: 10px;
+}
+
+.table thead th:last-child {
+    border-top-right-radius: 10px;
+    border-right: none;
+}
+        
+        .table tbody td {
+            padding: 12px;
+            vertical-align: middle;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* Striped rows */
+        .table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e3f2fd !important;
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+
+        /* Truncate long text with ellipsis */
+        /* Truncate particulars with ellipsis */
+/* TRUNCATE TEXT & TOOLTIP STYLES */
+.truncate-text {
+    max-width: 350px;       /* Adjust this width as needed */
+    white-space: nowrap;    /* Forces text to stay on one line */
+    overflow: hidden;       /* Hides the rest of the text */
+    text-overflow: ellipsis;/* Adds the '...' at the end */
+    cursor: pointer;        /* Changes cursor to hand icon */
+    position: relative;
+    display: block;
+}
+
+/* THE HOVER TOOLTIP */
+.truncate-text:hover::after {
+    content: attr(data-fulltext); /* Fetches the full text from the attribute */
+    position: absolute;
+    left: 10px;
+    top: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 1.4;
+    z-index: 9999;
+    white-space: normal;    /* Allows the tooltip text to wrap naturally */
+    width: max-content;
+    max-width: 450px;       /* Maximum width of the popup box */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+/* Set specific widths for particular columns */
+.table tbody td:nth-child(2),
+.table tbody td:nth-child(3),
+.table tbody td:nth-child(7) {
+    max-width: 250px;
+    min-width: 180px;
+}
+
+.table thead th:nth-child(2),
+.table thead th:nth-child(3),
+.table thead th:nth-child(7) {
+    max-width: 250px;
+    min-width: 180px;
+}
+
+        /* Make particular columns wider */
+        .table tbody td:nth-child(2),
+        .table tbody td:nth-child(6) {
+            max-width: 300px;
+        }
+        
+        .valid-badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .invalid-badge {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        
+        .section-divider {
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+
+        .section-divider h3 {
+            color: #1e3c72;
+            font-size: 2rem;
+            margin: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.8rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 6px 20px rgba(40,167,69,0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+
+        .action-btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(0,123,255,0.4);
+        }
+
+        .action-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(23,162,184,0.4);
+        }
+
+        /* Scrollbar styling */
+        .table-responsive::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .table {
+                font-size: 0.8rem;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 8px;
+            }
+        }
+        /* Add tooltips for truncated particulars */
+.table tbody td:nth-child(2),
+.table tbody td:nth-child(3),
+.table tbody td:nth-child(7) {
+    position: relative;
+    cursor: help;
+}
+
+.table tbody td:nth-child(2):hover::after,
+.table tbody td:nth-child(3):hover::after,
+.table tbody td:nth-child(7):hover::after {
+    content: attr(data-fulltext);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: #2c3e50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    white-space: normal;
+    max-width: 400px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    margin-top: 5px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Standardize badge sizes */
+.valid-badge,
+.invalid-badge {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.invalid-badge {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    min-width: 90px;
+}
+
+/* Fix for tooltip being hidden by next row */
+.table tbody td {
+    position: relative; /* Essential for z-index to work */
+}
+
+/* When hovering over a cell, bring it to the very front */
+.table tbody td:hover {
+    z-index: 1000;
+    overflow: visible; /* Ensure content can spill out */
+}
+
+/* Refined Tooltip Style */
+.truncate-text:hover::after {
+    content: attr(data-fulltext);
+    position: absolute;
+    left: 0;
+    top: 100%; /* Shows below the text */
+    background-color: #333; /* Dark background for contrast */
+    color: #fff;
+    padding: 12px;
+    border-radius: 4px;
+    width: max-content;
+    max-width: 400px;
+    white-space: normal; /* Allow wrapping in the box */
+    z-index: 9999;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    pointer-events: none; /* Prevents tooltip from interfering with clicks */
+}
+    </style>
+</head>
+<body>
+    <div class="analysis-container">
+        <div class="header-section">
+            <h1><i class="fas fa-chart-line"></i> QAR Analysis</h1>
+            <p>Quantity, Amount & Rate Analysis - ICICI vs Other Banks</p>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="/" class="action-btn">
+                <i class="fas fa-upload"></i> Upload New Files
+            </a>
+            <button class="action-btn secondary" onclick="toggleView()">
+                <i class="fas fa-exchange-alt"></i> Toggle Grouped Comparison
+            </button>
+        </div>
+        
+        <!-- ✅ FIX: Wrap QAR section in div with id -->
+        <div id="qar-section">
+            <!-- ICICI vs Other Banks Section -->
+<div class="analysis-card">
+    <div class="card-header-custom">
+        <h2><i class="fas fa-balance-scale"></i> ICICI vs Other Banks (HDFC)</h2>
+        <p>Comprehensive Comparison Across Multiple Particulars</p>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+    <tr>
+        <th>Sr.No</th>
+        <th>Particular Category</th>
+        <th>ICICI Particulars</th>
+        <th>ICICI Qty</th>
+        <th>ICICI Rate</th>
+        <th>ICICI Amount</th>
+        <th>Other Bank Particulars</th>
+        <th>Valid Qty?</th>
+        <th>Valid Rate?</th>
+        <th>Valid Amount?</th>
+        <th>Validation Msg (Qty)</th>
+        <th>Validation Msg (Rate)</th>
+        <th>Validation Msg (Amount)</th>
+        <th>Threshold Range (Qty)</th>
+         <th>Threshold Range (Rate)</th>
+        <th>Threshold Range (Amount)</th>
+        <th>Weighted Avg (Qty)</th>
+        <th>Weighted Avg (Rate)</th>
+        <th>Weighted Avg (Amount)</th>
+        
+    </tr>
+</thead>
+            <tbody>
+    {% for row in qar_data.comparison_results %}
+    <tr>
+        <td style="text-align: center;">{{ loop.index }}</td>
+        
+        <td>
+            <div class="truncate-text" 
+                 title="{{ row.get('Particular_Category', 'N/A') }}" 
+                 data-fulltext="{{ row.get('Particular_Category', 'N/A') }}">
+                {{ row.get('Particular_Category', 'N/A') }}
+            </div>
+        </td>
+
+        <td>
+            <div class="truncate-text" 
+                 title="{{ row['ICICI_Particulars'] }}" 
+                 data-fulltext="{{ row['ICICI_Particulars'] }}">
+                {{ row['ICICI_Particulars'] }}
+            </div>
+        </td>
+
+        <td>{{ "%.2f"|format(row['ICICI_Qty']) }}</td>
+        <td>₹{{ "%.2f"|format(row['ICICI_Rate']) }}</td>
+        <td>₹{{ "%.2f"|format(row['ICICI_Amount']) }}</td>
+        
+
+        <td>
+            <div class="truncate-text" 
+                 title="{{ row['Other_Bank_Particulars'] }}" 
+                 data-fulltext="{{ row['Other_Bank_Particulars'] }}">
+                {{ row['Other_Bank_Particulars'] }}
+            </div>
+        </td>
+
+        <td style="text-align: center;">
+            {% if row['Is_Valid_Qty_Other'] == True %}
+                <span class="valid-badge">✅ Valid</span>
+            {% elif row['Is_Valid_Qty_Other'] == False %}
+                <span class="invalid-badge">❌ Invalid</span>
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <td style="text-align: center;">
+            {% if row['Is_Valid_Rate_Other'] == True %}
+                <span class="valid-badge">✅ Valid</span>
+            {% elif row['Is_Valid_Rate_Other'] == False %}
+                <span class="invalid-badge">❌ Invalid</span>
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <td style="text-align: center;">
+            {% if row['Is_Valid_Amount_Other'] == True %}
+                <span class="valid-badge">✅ Valid</span>
+            {% elif row['Is_Valid_Amount_Other'] == False %}
+                <span class="invalid-badge">❌ Invalid</span>
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        
+
+        <td>{{ row.get('Validation_Message_Qty', 'N/A') }}</td>
+        <td>{{ row.get('Validation_Message_Rate', 'N/A') }}</td>
+        <td>{{ row.get('Validation_Message_Amount', 'N/A') }}</td>
+        <td>{{ row.get('Threshold_Range_Qty', 'N/A') }}</td>
+        <td>{{ row.get('Threshold_Range_Rate', 'N/A') }}</td>
+        <td>{{ row.get('Threshold_Range_Amount', 'N/A') }}</td>
+        <td>{{ row.get('Weighted_Avg_Range_Qty', 'N/A') }}</td>
+        <td>{{ row.get('Weighted_Avg_Range_Rate', 'N/A') }}</td>
+        <td>{{ row.get('Weighted_Avg_Range_Amount', 'N/A') }}</td>
+        
+        
+    </tr>
+    {% endfor %}
+</tbody>
+        </table>
+    </div>
+</div>
+            
+            <div class="section-divider">
+                <h3><i class="fas fa-angle-double-down"></i></h3>
+            </div>
+            
+            <!-- ICICI Bank Only Section -->
+            <!-- ICICI Bank Only Section -->
+<div class="analysis-card">
+    <div class="card-header-custom">
+        <h2><i class="fas fa-building"></i> ICICI Bank Analysis</h2>
+        <p>Comprehensive QAR Validation Against ICICI Benchmarks</p>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Particular Category</th>
+                    <th>Particulars</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
+                    <th>Valid Qty?</th>
+                    <th>Valid Rate?</th>
+                    <th>Valid Amount?</th>
+                    <th>Validation Msg (Qty)</th>
+                    <th>Validation Msg (Rate)</th>
+                    <th>Validation Msg (Amount)</th>
+                    <th>Threshold Range (Qty)</th>
+                    <th>Threshold Range (Rate)</th>
+                    <th>Threshold Range (Amount)</th>
+                    <th>Weighted Avg (Qty)</th>
+                    <th>Weighted Avg (Rate)</th>
+                    <th>Weighted Avg (Amount)</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in qar_data.icici_only_results %}
+                <tr>
+                    <td style="text-align: center;">{{ loop.index }}</td>
+                    <td>
+                        <div class="truncate-text" data-fulltext="{{ result.get('Particular_Category', 'N/A') }}">
+                            {{ result.get('Particular_Category', 'N/A') }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="truncate-text" data-fulltext="{{ result['Particulars'] }}">
+                            {{ result['Particulars'] }}
+                        </div>
+                    </td>
+                    <td>{{ "%.2f"|format(result['Qty']) }}</td>
+                    <td>₹{{ "%.2f"|format(result['Rate']) }}</td>
+                    <td>₹{{ "%.2f"|format(result['Amount']) }}</td>
+                    <td style="text-align: center;">
+                        {% if result.get('Is_Valid_Qty') == True %}
+                            <span class="valid-badge">✅ Valid</span>
+                        {% elif result.get('Is_Valid_Qty') == False %}
+                            <span class="invalid-badge">❌ Invalid</span>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if result.get('Is_Valid_Rate') == True %}
+                            <span class="valid-badge">✅ Valid</span>
+                        {% elif result.get('Is_Valid_Rate') == False %}
+                            <span class="invalid-badge">❌ Invalid</span>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if result.get('Is_Valid_Amount') == True %}
+                            <span class="valid-badge">✅ Valid</span>
+                        {% elif result.get('Is_Valid_Amount') == False %}
+                            <span class="invalid-badge">❌ Invalid</span>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ result.get('Validation_Message_Qty', 'N/A') }}</td>
+                    <td>{{ result.get('Validation_Message_Rate', 'N/A') }}</td>
+                    <td>{{ result.get('Validation_Message_Amount', 'N/A') }}</td>
+                    <td>{{ result.get('Threshold_Range_Qty', 'N/A') }}</td>
+                    <td>{{ result.get('Threshold_Range_Rate', 'N/A') }}</td>
+                    <td>{{ result.get('Threshold_Range_Amount', 'N/A') }}</td>
+                    <td>{{ result.get('Weighted_Avg_Range_Qty', 'N/A') }}</td>
+                    <td>{{ result.get('Weighted_Avg_Range_Rate', 'N/A') }}</td>
+                    <td>{{ result.get('Weighted_Avg_Range_Amount', 'N/A') }}</td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+        <!-- ✅ End of qar-section wrapper -->
+        </div>
+        
+        <!-- Grouped comparison section -->
+        <div id="grouped-comparison" style="display: none;">
+            {% if comparison_data %}
+                <div class="analysis-card">
+                    <div class="card-header-custom">
+                        <h2><i class="fas fa-exchange-alt"></i> ICICI vs Other Banks (HDFC) - Grouped Comparison</h2>
+                    </div>
+                    
+                    <div style="padding: 2rem;">
+                        <h4 style="text-align: center; color: #28a745; margin-bottom: 1rem;">ICICI Bank</h4>
+                        <div class="table-responsive">
+                            {{ comparison_data.icici_table|safe }}
+                        </div>
+                        
+                        <hr style="margin: 3rem 0; border: 2px solid #007bff;">
+
+                        <h4 style="text-align: center; color: #007bff; margin-bottom: 1rem;">HDFC Bank</h4>
+                        <div class="table-responsive">
+                            {{ comparison_data.hdfc_table|safe }}
+                        </div>
+                        
+                    
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="{{ url_for('download_file', filename=comparison_data.hdfc_report) }}" class="action-btn">
+                            <i class="fas fa-download"></i> Download HDFC Report
+                        </a>
+                        <a href="{{ url_for('download_file', filename=comparison_data.icici_report) }}" class="action-btn">
+                            <i class="fas fa-download"></i> Download ICICI Report
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="analysis-card">
+                    <div class="card-header-custom">
+                        <h2>No Grouped Comparison Data</h2>
+                    </div>
+                    <div style="padding: 3rem; text-align: center;">
+                        <p style="font-size: 1.2rem; color: #6c757d;">Grouped comparison data is not available for this analysis.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    
+    <!-- Analysis Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="analysisModalLabel">
+                    <i class="fas fa-chart-area"></i> Validation Analysis
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="chart-btn-group" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <button type="button" class="btn chart-btn" data-chart-type="bell_curve" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 20px; padding: 0.75rem 1.5rem; color: white;">
+                        <i class="fas fa-bell"></i> Bell Curve
+                    </button>
+                    <button type="button" class="btn chart-btn" data-chart-type="bar_plot" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 20px; padding: 0.75rem 1.5rem; color: white;">
+                        <i class="fas fa-chart-bar"></i> Bar Plot
+                    </button>
+                    <button type="button" class="btn chart-btn" data-chart-type="box_plot" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 20px; padding: 0.75rem 1.5rem; color: white;">
+                        <i class="fas fa-box"></i> Box Plot
+                    </button>
+                    <button type="button" class="btn chart-btn" data-chart-type="threshold_line" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 20px; padding: 0.75rem 1.5rem; color: white;">
+                        <i class="fas fa-chart-line"></i> Threshold Line
+                    </button>
+                </div>
+                <hr>
+                <div id="chart-container" style="text-align: center; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <div id="analysisText" class="lead">
+                        <i class="fas fa-info-circle text-primary"></i>
+                        Please select a chart type to view the analysis
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const analysisModal = new bootstrap.Modal(document.getElementById('analysisModal'));
+        const chartContainer = document.getElementById('chart-container');
+        const analysisModalLabel = document.getElementById('analysisModalLabel');
+        let currentRowData = {};
+
+        // Handle analysis button clicks
+        document.querySelectorAll('.btn-analysis-qar, .btn-analysis-comparison').forEach(button => {
+    button.addEventListener('click', function () {
+        currentRowData = {
+            particular: this.dataset.particular,
+            quantity: this.dataset.qty,
+            rate: this.dataset.rate,
+            amount: this.dataset.amount,
+            range: '1501-2000', // Add default range
+            client: 'ICICI Bank',
+            mode: this.dataset.mode || 'quantity'
+        };
+
+        analysisModalLabel.innerHTML = `<i class="fas fa-chart-area"></i> Analysis for: ${currentRowData.particular}`;
+        chartContainer.innerHTML = '<div class="lead"><i class="fas fa-info-circle text-primary"></i> Please select a chart type to view the analysis</div>';
+        
+        document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+        analysisModal.show();
+    });
+});
+
+        // Handle chart type button clicks
+        document.querySelectorAll('.chart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const chartType = this.getAttribute('data-chart-type');
+                
+                document.querySelectorAll('.chart-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.background = 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)';
+                });
+                this.classList.add('active');
+                this.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                
+                chartContainer.innerHTML = `
+                    <div class="loading-chart" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="text-muted">Generating ${chartType.replace('_', ' ')}...</div>
+                    </div>
+                `;
+
+                const { particular, quantity, client, mode } = currentRowData;
+                const url = `/graph?type=${chartType}&range=1501-2000&particular=${encodeURIComponent(particular)}&value=${quantity}&client=${encodeURIComponent(client)}&mode=${encodeURIComponent(mode)}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            chartContainer.innerHTML = `
+                                <div class="text-danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    ${data.error}
+                                </div>
+                            `;
+                        } else {
+                            chartContainer.innerHTML = `
+                                <div class="mb-3">${data.explanation}</div>
+                                <img src="data:image/png;base64,${data.image}" alt="Analysis Graph" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" />
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        chartContainer.innerHTML = `
+                            <div class="text-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Failed to load analysis chart. Please try again.
+                            </div>
+                        `;
+                        console.error('Error:', error);
+                    });
+            });
+        });
+    });
+
+    function toggleView() {
+        const qarSection = document.getElementById('qar-section');
+        const groupedSection = document.getElementById('grouped-comparison');
+        
+        if (qarSection.style.display === 'none') {
+            qarSection.style.display = 'block';
+            groupedSection.style.display = 'none';
+        } else {
+            qarSection.style.display = 'none';
+            groupedSection.style.display = 'block';
+        }
+    }
+    // Ensure Bootstrap Modal is available
+if (typeof bootstrap === 'undefined') {
+    console.error('Bootstrap not loaded!');
+}
+</script>
+</body>
+</html>
