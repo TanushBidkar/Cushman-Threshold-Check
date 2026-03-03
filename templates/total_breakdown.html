@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Total Breakdown | CWI Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .header-bar {
+            background: linear-gradient(90deg, #004e92 0%, #000428 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 2rem;
+        }
+        
+        .breakdown-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .bank-total-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .bank-total-card.icici {
+            background: linear-gradient(135deg, #004e92 0%, #0066cc 100%);
+        }
+        
+        .bank-total-card.hdfc {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        }
+        
+        .bank-total-card h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .bank-total-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .category-details-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-details-row:last-child {
+            border-bottom: none;
+        }
+
+        .category-label {
+            font-weight: 600;
+            color: #1e3c72;
+            font-size: 0.95rem;
+        }
+
+        .category-values {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .value-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .value-amount {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .value-percent {
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-top: 3px;
+        }
+
+        .icici-percent {
+            background-color: #e3f2fd;
+            color: #004e92;
+        }
+
+        .hdfc-percent {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .details-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .details-section h5 {
+            color: #1e3c72;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-chart-pie"></i> TOTAL Breakdown
+                </h2>
+                <small class="text-white-50">{{ range_name }} Sq. Feet | {{ mode|title }} Mode</small>
+            </div>
+            <a href="/dump_analysis?region={{ region }}&mode={{ mode }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left"></i> Back to Main List
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="breakdown-card">
+            <h4 class="mb-4 text-center">
+                <i class="fas fa-percentage"></i> Distribution of {{ mode|title }} Contribution (Out of 100%)
+            </h4>
+            
+            <!-- Bank Totals -->
+            <div class="row mb-5">
+                <div class="col-md-6 mb-3">
+                    <div class="bank-total-card icici">
+                        <h5><i class="fas fa-building"></i> ICICI Bank Total</h5>
+                        <h3>₹{{ icici_total }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="bank-total-card hdfc">
+                        <h5><i class="fas fa-building"></i> HDFC Bank Total</h5>
+                        <h3>₹{{ hdfc_total }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Charts Section -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm" style="padding: 20px;">
+                        <h5 class="text-center mb-3" style="color: #004e92; font-weight: 700;">
+                            <i class="fas fa-chart-pie"></i> ICICI Distribution
+                        </h5>
+                        <canvas id="iciciPieChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm" style="padding: 20px;">
+                        <h5 class="text-center mb-3" style="color: #2e7d32; font-weight: 700;">
+                            <i class="fas fa-chart-pie"></i> HDFC Distribution
+                        </h5>
+                        <canvas id="hdfcPieChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Details Section -->
+            <div class="details-section">
+                <h5><i class="fas fa-list-ul"></i> Category-wise Breakdown</h5>
+                {% for row in breakdown_data %}
+                <div class="category-details-row">
+                    <div class="category-label">
+                        <i class="fas fa-layer-group"></i> {{ row.category }}
+                    </div>
+                    <div class="category-values">
+                        <div class="value-item">
+                            <span class="value-amount">ICICI: ₹{{ row.icici_display }}</span>
+                            <span class="value-percent icici-percent">{{ "%.2f"|format(row.icici_percent) }}%</span>
+                        </div>
+                        <div class="value-item">
+                            <span class="value-amount">HDFC: ₹{{ row.hdfc_display }}</span>
+                            <span class="value-percent hdfc-percent">{{ "%.2f"|format(row.hdfc_percent) }}%</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Summary Note -->
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Note:</strong> Percentages are calculated based on the weighted average midpoint of each category's range. 
+                The TOTAL row is excluded from this calculation.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Prepare data from backend
+        const categories = [
+            {% for row in breakdown_data %}
+            "{{ row.category|replace('&amp;', '&')|replace('&', 'and') }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        const iciciValues = [
+            {% for row in breakdown_data %}
+            {{ row.icici_percent }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        const hdfcValues = [
+            {% for row in breakdown_data %}
+            {{ row.hdfc_percent }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const iciciAmounts = [
+            {% for row in breakdown_data %}
+            "{{ row.icici_display }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const hdfcAmounts = [
+            {% for row in breakdown_data %}
+            "{{ row.hdfc_display }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Color palette for ICICI
+        const colors = [
+            '#004e92', '#0066cc', '#2196F3', '#64B5F6', '#90CAF9',
+            '#BBDEFB', '#E3F2FD', '#1565C0', '#1976D2', '#42A5F5'
+        ];
+
+        // ICICI Pie Chart
+        const iciciCtx = document.getElementById('iciciPieChart').getContext('2d');
+        new Chart(iciciCtx, {
+            type: 'pie',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: iciciValues,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12, weight: '600' },
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                return [
+                                    context.label,
+                                    'Amount: ₹' + iciciAmounts[index],
+                                    'Percentage: ' + context.parsed.toFixed(2) + '%'
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Color palette for HDFC
+        const hdfcColors = [
+            '#2e7d32', '#388e3c', '#43a047', '#4caf50', '#66bb6a',
+            '#81c784', '#a5d6a7', '#1b5e20', '#2e7d32', '#4caf50'
+        ];
+
+        // HDFC Pie Chart
+        const hdfcCtx = document.getElementById('hdfcPieChart').getContext('2d');
+        new Chart(hdfcCtx, {
+            type: 'pie',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: hdfcValues,
+                    backgroundColor: hdfcColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12, weight: '600' },
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                return [
+                                    context.label,
+                                    'Amount: ₹' + hdfcAmounts[index],
+                                    'Percentage: ' + context.parsed.toFixed(2) + '%'
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

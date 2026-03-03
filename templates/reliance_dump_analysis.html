@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reliance Yousta - Service Code Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .main-header h1 {
+            color: #1e3c72;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .main-header .subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .data-table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table thead {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        .data-table thead th {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            border: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .data-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+        
+        .data-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+        
+        .data-table tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .data-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .threshold-clickable {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        .threshold-clickable:hover {
+            color: #0056b3;
+        }
+        
+        .service-code-cell {
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 1.05rem;
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .back-btn:hover {
+            background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-header">
+            <div class="d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-database"></i> Reliance Yousta - Service Code Analysis</h1>
+        <p class="subtitle">Complete dump of all service codes with weighted averages and thresholds</p>
+        <p class="text-muted mb-0">Total Records: <strong>{{ total_items }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <!-- ✅ NEW: Download Excel Button -->
+        {% if excel_report %}
+        <a href="{{ url_for('download_file', filename=excel_report) }}" class="btn btn-success">
+            <i class="fas fa-download"></i> Download Excel
+        </a>
+        {% endif %}
+        
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Upload
+        </a>
+    </div>
+</div>
+        
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+    <tr>
+        <th>Sr. No</th>
+        <th>Service Code</th>
+        <th>Particulars</th>
+        <th>Area Range</th>
+        <th>No. of Files</th>
+        <th>Weighted Min</th>
+        <th>Weighted Max</th>
+        <th>Weighted Range</th>
+        <th>Threshold Min</th>
+        <th>Threshold Max</th>
+        <!-- ✅ REMOVED: Min Files and Max Files columns from web view -->
+    </tr>
+</thead>
+<tbody>
+    {% for row in report_data %}
+    <tr>
+        <td>{{ row.Sr_No }}</td>
+        <td class="service-code-cell">{{ row.Service_Code }}</td>
+        <td style="text-align: left;">{{ row.Particulars }}</td>
+        <td><span class="badge bg-primary">{{ row.Area_Range }}</span></td>
+        <td>{{ row.Num_Files }}</td>
+        <td>{{ row.Weighted_Min }}</td>
+        <td>{{ row.Weighted_Max }}</td>
+        <td><strong>{{ row.Weighted_Range }}</strong></td>
+        <td>
+            <span class="threshold-clickable" 
+                  title="{{ row.Min_Tooltip }}"
+                  style="cursor: help;">
+                {{ row.Threshold_Min }}
+            </span>
+        </td>
+        <td>
+            <span class="threshold-clickable" 
+                  title="{{ row.Max_Tooltip }}"
+                  style="cursor: help;">
+                {{ row.Threshold_Max }}
+            </span>
+        </td>
+        <!-- ✅ NO file name columns in web view -->
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
