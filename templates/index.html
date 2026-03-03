@@ -950,6 +950,44 @@
     transform: translateY(-2px);
     box-shadow: 0 5px 20px rgba(189, 189, 189, 0.4);
 }
+/* Sub-Client Selection Section */
+.sub-client-selection-section {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid #ff9800;
+    display: none;
+}
+
+.sub-client-selection-section.show {
+    display: block;
+    animation: slideDown 0.5s ease;
+}
+
+.sub-client-selection-section h5 {
+    color: #1e3c72;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.sub-client-selection-section h5 i {
+    margin-right: 0.5rem;
+    color: #ff9800;
+}
+
+.coming-soon-badge {
+    display: inline-block;
+    background: #ffc107;
+    color: #856404;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-left: 0.5rem;
+}
     </style>
         
     </style>
@@ -1027,7 +1065,91 @@
                         <div class="selected-clients-list" id="selected-clients-list"></div>
                     </div>
                 </div>
+                <!-- ✅ NEW: Sub-Client Selection for Reliance -->
+<!-- Reliance Sub-Client Selection -->
+<div class="sub-client-selection-section" id="reliance-sub-client-section" style="display: none !important;">
+    <h5><i class="fas fa-building"></i> Select Reliance Sub-Client</h5>
+    <div class="clients-grid">
+        <div class="client-checkbox" data-subclient="yousta">
+            <input type="radio" name="reliance_sub_client" id="sub-yousta" value="yousta" checked>
+            <label for="sub-yousta">
+                <i class="fas fa-check-circle"></i>
+                Yousta
+            </label>
+        </div>
+        
+        <div class="client-checkbox" data-subclient="smart">
+            <input type="radio" name="reliance_sub_client" id="sub-smart" value="smart">
+            <label for="sub-smart">
+                <i class="fas fa-check-circle"></i>
+                Smart
+            </label>
+        </div>
+        
+        <div class="client-checkbox disabled" data-subclient="azorte">
+            <input type="radio" name="reliance_sub_client" id="sub-azorte" value="azorte" disabled>
+            <label for="sub-azorte">
+                Azorte
+                <span class="coming-soon-badge">Coming Soon</span>
+            </label>
+        </div>
+        
+        <div class="client-checkbox disabled" data-subclient="cdit">
+            <input type="radio" name="reliance_sub_client" id="sub-cdit" value="cdit" disabled>
+            <label for="sub-cdit">
+                CDIT
+                <span class="coming-soon-badge">Coming Soon</span>
+            </label>
+        </div>
+    </div>
+</div>
 
+<!-- Reliance Sub-Client Selection Modal (First Modal) -->
+<div class="modal" id="reliance-subclient-modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <i class="fas fa-building"></i>
+            <h4>Select Reliance Sub-Client</h4>
+        </div>
+        <div class="modal-body">
+            <p>You have selected <strong>Reliance Retail</strong>.</p>
+            <p>Please choose which sub-client you want to work with:</p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; gap: 15px;">
+            <button class="btn btn-primary" onclick="selectRelianceSubClient('yousta')">
+                <i class="fas fa-check-circle"></i> Yousta
+            </button>
+            <button class="btn btn-success" onclick="selectRelianceSubClient('smart')">
+                <i class="fas fa-check-circle"></i> Smart
+            </button>
+            <button class="btn btn-secondary" onclick="closeSubClientModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reliance Validation Path Modal (Second Modal) -->
+<div class="modal" id="reliance-validation-path-modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+    <i class="fas fa-route"></i>
+    <h4>Choose Validation Path</h4>
+</div>
+<div class="modal-body">
+    <p>You have selected <strong>Reliance Retail - <span id="modal-subclient-name">Yousta</span></strong>.</p>
+    <p>Please choose how you want to proceed:</p>
+</div>
+        <div class="modal-footer" style="justify-content: center; gap: 15px;">
+            <button class="btn btn-primary" onclick="handleRelianceChoice('upload')">
+                <i class="fas fa-upload"></i> Upload Files & Check
+            </button>
+            <button class="btn btn-success" onclick="handleRelianceChoice('dump')">
+                <i class="fas fa-database"></i> Dump Analysis (No Upload)
+            </button>
+        </div>
+    </div>
+</div>
                 <div class="location-selection-section" id="location-selection-section">
                     <div class="location-notice">
                         <i class="fas fa-info-circle"></i>
@@ -1091,6 +1213,7 @@
                     <input type="hidden" name="selected_clients" id="selected-clients-input">
                     
                     <input type="hidden" name="selected_region" id="selected-region-input">
+                    <input type="hidden" name="reliance_sub_client" id="reliance-sub-client-input">
                     
                     <div class="upload-area" id="drop-zone">
                         <input type="file" name="file" id="file-input" class="d-none" accept=".xlsx,.xls" disabled>
@@ -1137,6 +1260,25 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Add this right after the dual-upload-grid closing div and before the dual-upload-area closing div -->
+<div style="text-align: center; margin: 2rem auto; width: 100%; display: flex; justify-content: center;">
+    <button type="button" class="action-btn" id="check-rate-ranges-btn" 
+            style="background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%); 
+                   display: none;
+                   padding: 14px 28px; 
+                   border: none; 
+                   border-radius: 10px; 
+                   color: white; 
+                   font-size: 15px; 
+                   font-weight: 600; 
+                   cursor: pointer; 
+                   box-shadow: 0 4px 12px rgba(124, 77, 255, 0.35);
+                   transition: all 0.3s ease;
+                   margin: 0 auto;">
+        <i class="fas fa-chart-line"></i> Check Rate-Ranges For ICICI Without Uploading Files
+    </button>
+</div>
                     
                     <div class="selected-file" id="selected-file">
                         <div class="file-info">
@@ -1201,6 +1343,50 @@
         </div>
     </div>
 
+    <div class="modal" id="dump-check-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <i class="fas fa-database"></i>
+                <h4>Check Existing Data?</h4>
+            </div>
+            <div class="modal-body">
+                <p>You have selected both <strong>HDFC</strong> and <strong>ICICI</strong> banks.</p>
+                <p>Do you want to check the <strong>Standard Rate/Amount Ranges (Dump)</strong> directly without uploading files?</p>
+                
+                <div id="dump-region-select" style="display:none; margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                    <label style="font-weight: 600; color: #1e3c72; margin-bottom: 10px; display: block;">Select Region for Bank 1 (HDFC):</label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <input type="radio" class="btn-check" name="dump_region" id="dump_west" value="West" checked>
+                        <label class="btn btn-outline-primary" for="dump_west">West</label>
+
+                        <input type="radio" class="btn-check" name="dump_region" id="dump_east" value="East">
+                        <label class="btn btn-outline-primary" for="dump_east">East</label>
+
+                        <input type="radio" class="btn-check" name="dump_region" id="dump_north" value="North">
+                        <label class="btn btn-outline-primary" for="dump_north">North</label>
+
+                        <input type="radio" class="btn-check" name="dump_region" id="dump_south" value="South">
+                        <label class="btn btn-outline-primary" for="dump_south">South</label>
+
+                        <input type="radio" class="btn-check" name="dump_region" id="dump_pan" value="PAN INDIA">
+                        <label class="btn btn-outline-primary" for="dump_pan">PAN INDIA</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: 15px;">
+                <button class="btn btn-outline-secondary" onclick="handleDumpChoice('no')">
+                    <i class="fas fa-upload"></i> No, Upload Files
+                </button>
+                <button class="btn btn-primary" id="btn-dump-yes" onclick="showRegionSelect()">
+                    <i class="fas fa-check"></i> Yes, Check Dump
+                </button>
+                <button class="btn btn-success" id="btn-dump-proceed" style="display:none;" onclick="handleDumpChoice('yes')">
+                    <i class="fas fa-arrow-right"></i> Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="warning-modal" id="location-warning-modal">
         <div class="warning-modal-content">
             <div class="warning-modal-header">
@@ -1248,7 +1434,7 @@
     let selectedLocation = null;
 
     // Clients under maintenance (all except HDFC and ICICI)
-    const maintenanceClients = ['reliance', 'shoppers', 'cultfit', 'kotak', 'nuvama', 'sleep', 'papajohns', 'starbucks', 'subway', 'others'];
+    const maintenanceClients = ['shoppers', 'cultfit', 'kotak', 'nuvama', 'sleep', 'papajohns', 'starbucks', 'subway', 'others'];
 
     let selectedClients = [];
 
@@ -1416,30 +1602,58 @@
         }
     }
 
+    const dumpModal = document.getElementById('dump-check-modal');
+    
     function updateUploadAreaState() {
-        const isBothSelected = selectedClients.includes('HDFC Bank') && selectedClients.includes('ICICI Bank');
+    const isBothSelected = selectedClients.includes('HDFC Bank') && selectedClients.includes('ICICI Bank');
+    
+    if (isBothSelected) {
+        // Trigger Modal instead of showing upload immediately
+        dumpModal.classList.add('show');
         
-        if (isBothSelected) {
-            // Show dual upload, hide single upload
+        // ✅ NEW: Show the "Check Rate-Ranges" button
+        document.getElementById('check-rate-ranges-btn').style.display = 'block';
+    } else if (selectedClients.length > 0) {
+        // Single client selection logic
+        document.getElementById('drop-zone').style.display = 'block';
+        document.getElementById('dual-drop-zone').style.display = 'none';
+        dropZone.classList.add('enabled');
+        fileInput.disabled = false;
+        document.querySelector('.upload-disabled-message').style.display = 'none';
+        
+        // ✅ NEW: Hide the button when not both selected
+        document.getElementById('check-rate-ranges-btn').style.display = 'none';
+    } else {
+        // No client selection
+        document.getElementById('drop-zone').style.display = 'block';
+        document.getElementById('dual-drop-zone').style.display = 'none';
+        dropZone.classList.remove('enabled');
+        fileInput.disabled = true;
+        document.querySelector('.upload-disabled-message').style.display = 'block';
+        validateBtn.disabled = true;
+        
+        // ✅ NEW: Hide the button when no client selected
+        document.getElementById('check-rate-ranges-btn').style.display = 'none';
+    }
+}
+    function showRegionSelect() {
+        document.getElementById('dump-region-select').style.display = 'block';
+        document.getElementById('btn-dump-yes').style.display = 'none';
+        document.getElementById('btn-dump-proceed').style.display = 'inline-block';
+    }
+
+    function handleDumpChoice(choice) {
+        if (choice === 'yes') {
+            // Redirect to Dump Analysis Page
+            const region = document.querySelector('input[name="dump_region"]:checked').value;
+            window.location.href = `/dump_analysis?region=${region}&mode=rate`; // Default to Rate
+        } else {
+            // Show Upload Boxes
+            dumpModal.classList.remove('show');
             document.getElementById('drop-zone').style.display = 'none';
             document.getElementById('dual-drop-zone').style.display = 'block';
             document.getElementById('hdfc-file-input').disabled = false;
             document.getElementById('icici-file-input').disabled = false;
-        } else if (selectedClients.length > 0) {
-            // Show single upload
-            document.getElementById('drop-zone').style.display = 'block';
-            document.getElementById('dual-drop-zone').style.display = 'none';
-            dropZone.classList.add('enabled');
-            fileInput.disabled = false;
-            document.querySelector('.upload-disabled-message').style.display = 'none';
-        } else {
-            // No client selected
-            document.getElementById('drop-zone').style.display = 'block';
-            document.getElementById('dual-drop-zone').style.display = 'none';
-            dropZone.classList.remove('enabled');
-            fileInput.disabled = true;
-            document.querySelector('.upload-disabled-message').style.display = 'block';
-            validateBtn.disabled = true;
         }
     }
 
@@ -1664,6 +1878,107 @@
             observer.observe(card);
         });
     });
+    // Handle "Check Rate-Ranges" button click
+document.getElementById('check-rate-ranges-btn').addEventListener('click', function() {
+    // Redirect to new comparison route
+    window.location.href = '/rate_comparison_analysis';
+});
+
+// Show/Hide Reliance Sub-Client Selector
+
+// Trigger modal when Yousta is selected
+
+// NEW: Trigger sub-client selection modal when Reliance is clicked
+clientCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const clientBox = this.closest('.client-checkbox');
+        const clientKey = clientBox.dataset.client;
+        
+        // Check if Reliance Retail was just selected
+        if (this.checked && this.value === 'Reliance Retail') {
+            // Show the sub-client selection modal
+            document.getElementById('reliance-subclient-modal').classList.add('show');
+        }
+    });
+});
+
+// Function to handle sub-client selection (Yousta or Smart)
+function selectRelianceSubClient(subclient) {
+    // Hide first modal
+    document.getElementById('reliance-subclient-modal').classList.remove('show');
+    
+    // Set the selected sub-client
+    document.getElementById('reliance-sub-client-input').value = subclient;
+    
+    // Update the radio button selection (even though it's hidden)
+    document.getElementById('sub-' + subclient).checked = true;
+    
+    // Update modal text with selected sub-client name
+    const subclientName = subclient.charAt(0).toUpperCase() + subclient.slice(1);
+    document.getElementById('modal-subclient-name').textContent = subclientName;
+    
+    // Show the validation path modal (second modal)
+    document.getElementById('reliance-validation-path-modal').classList.add('show');
+}
+
+// Function to close sub-client modal and uncheck Reliance
+function closeSubClientModal() {
+    // Hide the modal
+    document.getElementById('reliance-subclient-modal').classList.remove('show');
+    
+    // Uncheck Reliance Retail
+    const relianceCheckbox = document.getElementById('client-reliance');
+    if (relianceCheckbox) {
+        relianceCheckbox.checked = false;
+        relianceCheckbox.closest('.client-checkbox').classList.remove('selected');
+    }
+    
+    // Update selected clients
+    selectedClients = selectedClients.filter(c => c !== 'Reliance Retail');
+    updateSelectedClientsDisplay();
+    updateUploadAreaState();
+}
+
+// Close modals when clicking outside
+document.getElementById('reliance-subclient-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeSubClientModal();
+    }
+});
+
+document.getElementById('reliance-validation-path-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.remove('show');
+    }
+});
+
+// Handle Reliance choice
+function handleRelianceChoice(choice) {
+    const modal = document.getElementById('reliance-validation-path-modal');
+    modal.classList.remove('show');
+    
+    const selectedSubClient = document.querySelector('input[name="reliance_sub_client"]:checked').value;
+    
+    if (choice === 'dump') {
+        // Redirect to appropriate dump analysis based on sub-client
+        if (selectedSubClient === 'yousta') {
+            window.location.href = '/reliance_dump_analysis';
+        } else if (selectedSubClient === 'smart') {
+            window.location.href = '/reliance_smart_dump_analysis';
+        }
+    } else {
+        // Continue with file upload (existing flow)
+        updateUploadAreaState();
+    }
+}
+
+// Set default value on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const defaultSubClient = document.querySelector('input[name="reliance_sub_client"]:checked');
+    if (defaultSubClient) {
+        document.getElementById('reliance-sub-client-input').value = defaultSubClient.value;
+    }
+});
 </script>
 </body>
 </html>
