@@ -870,6 +870,24 @@ body.rate-mode .table tbody td:nth-child(7):hover {
         font-weight: 600;
         color: #1e3c72;
     }
+    /* Service Code Column Styling (for Reliance only) */
+    /* Service Code Column Styling (for Reliance only) */
+.table thead th:nth-child(2) {
+    {% if client == 'Reliance Retail' %}
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%) !important;
+    color: white !important;
+    {% endif %}
+}
+
+.table tbody td:nth-child(2) {
+    {% if client == 'Reliance Retail' %}
+    font-weight: 700;
+    color: #e65100;
+    background-color: #fff3e0;
+    font-family: 'Courier New', monospace;
+    max-width: 120px;
+    {% endif %}
+}
 /* Replace the existing tooltip CSS with this improved version */
 
     </style>
@@ -993,7 +1011,20 @@ body.rate-mode .table tbody td:nth-child(7):hover {
     </div>
 </div>
 {% endif %}
-
+{% if client == 'Reliance Retail' %}
+<div class="mode-switch-section">
+    <h5>Switch Validation Mode</h5>
+    <div class="mode-switch-buttons">
+        <a href="/switch_mode/quantity" class="mode-switch-btn {% if validation_mode == 'quantity' %}active{% endif %}">
+            <i class="fas fa-hashtag"></i> Quantity
+        </a>
+        <a href="/switch_mode/rate" class="mode-switch-btn disabled">
+            <i class="fas fa-percentage"></i> Rate
+            <span class="coming-soon-badge">Coming Soon</span>
+        </a>
+    </div>
+</div>
+{% endif %}
             <div class="results-section">
                 <div class="results-title">
                     <i class="fas fa-table"></i> Detailed Results
