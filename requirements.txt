@@ -5,5 +5,4 @@ openpyxl
 numpy
 xlsxwriter
 matplotlib
-seaborn
 gunicorn
